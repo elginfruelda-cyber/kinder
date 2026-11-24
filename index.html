@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Literacy Quest for Kinder</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--deep:#123524;--leaf:#1f9d55;--sun:#ffc933;--sky:#4fc3f7;--coral:#ff6b57;--sand:#fff4d6}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;font-family:'Baloo 2','Comic Sans MS',system-ui,sans-serif;color:var(--deep)}
+body{background:linear-gradient(#8fdcff 0%,#d9f5ff 38%,#7bd389 38%,#2e8b57 100%);overflow-x:hidden}
+#app{max-width:820px;margin:0 auto;min-height:100%;padding:14px;display:flex;flex-direction:column;align-items:center}
+h1{font-size:clamp(30px,7vw,52px);margin:6px 0;text-align:center;line-height:1;font-weight:800;text-shadow:3px 3px 0 var(--sun)}
+.screen{width:100%;display:none;flex-direction:column;align-items:center;gap:14px}
+.screen.on{display:flex}
+.card{background:var(--sand);border:5px solid var(--deep);border-radius:28px;padding:18px;width:100%;box-shadow:0 8px 0 var(--deep);text-align:center}
+.mascot{font-size:84px;animation:bob 1.6s ease-in-out infinite;cursor:pointer;user-select:none}
+@keyframes bob{50%{transform:translateY(-12px) rotate(-5deg)}}
+.btn{font:inherit;font-weight:800;font-size:24px;border:4px solid var(--deep);border-radius:22px;padding:12px 22px;background:var(--sun);color:var(--deep);box-shadow:0 6px 0 var(--deep);cursor:pointer;min-height:64px;transition:transform .08s}
+.btn:active{transform:translateY(5px);box-shadow:0 1px 0 var(--deep)}
+.btn.sm{font-size:18px;min-height:44px;padding:6px 14px}
+.code{font-size:clamp(30px,8vw,46px);font-weight:800;color:var(--coral);margin:4px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;width:100%}
+.lvl{padding:18px 10px;font-size:26px}
+.easy{background:#7ee081}.avg{background:var(--sun)}.hard{background:#ff8f7a}
+.act{background:#fff;text-align:left;display:flex;gap:10px;align-items:center;font-size:20px}
+.act b{font-size:34px}
+.top{display:flex;justify-content:space-between;align-items:center;width:100%;gap:8px;flex-wrap:wrap}
+.pill{background:#fff;border:4px solid var(--deep);border-radius:99px;padding:2px 14px;font-weight:800;font-size:20px}
+.bar{height:16px;background:#fff;border:3px solid var(--deep);border-radius:99px;width:100%;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--coral);transition:width .4s}
+.prompt{font-size:clamp(22px,5vw,30px);font-weight:700;margin:4px 0}
+.big{font-size:clamp(64px,18vw,120px);font-weight:800;line-height:1.1;margin:4px 0;word-break:break-word}
+.big.txt{font-size:clamp(34px,8vw,56px)}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:10px}
+.opt{font-size:clamp(28px,7vw,44px);background:#fff;min-height:84px}
+.opt.good{background:#7ee081;animation:pop .5s}
+.opt.bad{background:#ff8f7a;animation:shake .4s}
+@keyframes pop{50%{transform:scale(1.2)}}
+@keyframes shake{25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+.slots{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;min-height:70px;padding:8px;background:#fff;border:4px dashed var(--deep);border-radius:18px;margin:8px 0;font-size:30px;font-weight:800}
+.stars{font-size:64px;letter-spacing:6px}
+.stars span{display:inline-block;animation:pop .7s both}
+.confetti{position:fixed;top:-30px;font-size:30px;pointer-events:none;animation:fall 2.6s linear forwards;z-index:9}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+table{width:100%;border-collapse:collapse;font-size:15px;background:#fff}
+th,td{border:2px solid var(--deep);padding:4px 6px}
+.scroll{overflow-x:auto;width:100%}
+.note{font-size:16px;opacity:.8}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+  <h1>🌴 Literacy QUEST for Kinder 🧭</h1>
+
+  <!-- WELCOME -->
+  <section id="s-home" class="screen on">
+    <div class="card">
+      <div class="mascot" id="m1">👧🏽🎒</div>
+      <div class="prompt">Hello, explorer! Your code name is:</div>
+      <div class="code" id="codeName"></div>
+      <button class="btn sm" id="reroll">🎲 New name</button>
+      <p class="prompt">Ready for the jungle quest?</p>
+      <button class="btn" id="go">🚀 Start Adventure</button>
+      <p><button class="btn sm" id="teacher">👩‍🏫 Teacher view</button></p>
+    </div>
+  </section>
+
+  <!-- LEVEL -->
+  <section id="s-level" class="screen">
+    <div class="card">
+      <div class="mascot">🗺️</div>
+      <div class="prompt">Choose your trail, <span id="cn1"></span>!</div>
+      <div class="grid">
+        <button class="btn lvl easy" data-l="Easy">🌱 Easy</button>
+        <button class="btn lvl avg" data-l="Average">🌿 Average</button>
+        <button class="btn lvl hard" data-l="Difficult">🌳 Difficult</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACTIVITY -->
+  <section id="s-act" class="screen">
+    <div class="top"><button class="btn sm" data-back="s-level">⬅ Trails</button><span class="pill" id="lvlTag"></span><span class="pill">⭐ <span id="totalStars">0</span></span></div>
+    <div class="grid" id="actGrid"></div>
+  </section>
+
+  <!-- PLAY -->
+  <section id="s-play" class="screen">
+    <div class="top"><button class="btn sm" id="quit">⬅ Map</button><span class="pill" id="actTag"></span><span class="pill" id="scoreTag"></span></div>
+    <div class="bar"><i id="prog"></i></div>
+    <div class="card">
+      <div class="prompt" id="qPrompt"></div>
+      <div class="big" id="qBig"></div>
+      <button class="btn sm" id="hear">🔊 Listen</button>
+      <div id="qSlots" class="slots" style="display:none"></div>
+      <div class="opts" id="qOpts"></div>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="s-end" class="screen">
+    <div class="card">
+      <div class="mascot">🏆</div>
+      <div class="prompt" id="endMsg"></div>
+      <div class="stars" id="endStars"></div>
+      <div class="prompt" id="endScore"></div>
+      <p class="note" id="saveNote"></p>
+      <button class="btn" id="again">🔁 Play again</button>
+      <button class="btn" id="toMap">🗺️ Back to map</button>
+    </div>
+  </section>
+
+  <!-- TEACHER -->
+  <section id="s-teacher" class="screen">
+    <div class="card">
+      <div class="prompt">👩‍🏫 Latest results</div>
+      <div class="scroll" id="tTable">Loading…</div>
+      <p><button class="btn sm" data-back="s-home">⬅ Back</button></p>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ====== CONFIG: paste your Apps Script Web App URL here ====== */
+const API_URL = "https://script.google.com/macros/s/AKfycbzRDmVHSLSYq5FfdMu2BfO2lcV6Z0dkXpbhBrTWyCTiSE3KuPF973HdTsVYxULQYawc/exec";
+
+/* ====== helpers ====== */
+const $ = id => document.getElementById(id);
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const pick = (a, n) => shuffle(a).slice(0, n);
+const ADJ = ["Brave","Happy","Swift","Bright","Mighty","Clever","Jolly","Super"];
+const ANI = ["Lion","Parrot","Monkey","Tiger","Toucan","Turtle","Panda","Star","Eagle","Frog"];
+let S = { code: "", level: "", act: "", qs: [], i: 0, score: 0, stars: +localStorage.getItem("lqStars") || 0, locked: false };
+
+/* ====== sound ====== */
+let ac;
+function tone(f, d = .15, t = "sine", at = 0) {
+  try { ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    const o = ac.createOscillator(), g = ac.createGain(); o.type = t; o.frequency.value = f;
+    g.gain.setValueAtTime(.2, ac.currentTime + at); g.gain.exponentialRampToValueAtTime(.001, ac.currentTime + at + d);
+    o.connect(g); g.connect(ac.destination); o.start(ac.currentTime + at); o.stop(ac.currentTime + at + d + .05); } catch (e) {}
+}
+const sfx = {
+  click: () => tone(520, .08, "triangle"),
+  good: () => [523, 659, 784, 1046].forEach((f, k) => tone(f, .16, "triangle", k * .09)),
+  bad: () => { tone(220, .2, "sawtooth"); tone(165, .25, "sawtooth", .15); },
+  win: () => [523, 659, 784, 659, 784, 1046].forEach((f, k) => tone(f, .2, "square", k * .12)),
+  jungle: () => [392, 330, 392, 523].forEach((f, k) => tone(f, .14, "triangle", k * .1))
+};
+function say(t, rate = .8) {
+  if (!("speechSynthesis" in window)) return;
+  speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t);
+  u.lang = "en-US"; u.rate = rate; u.pitch = 1.15; speechSynthesis.speak(u);
+}
+function confetti() {
+  const e = ["🎉","⭐","🌟","🦜","🍌","🌺","✨"];
+  for (let i = 0; i < 28; i++) { const c = document.createElement("div"); c.className = "confetti"; c.textContent = e[i % e.length];
+    c.style.left = Math.random() * 100 + "vw"; c.style.animationDelay = Math.random() * .8 + "s"; document.body.appendChild(c); setTimeout(() => c.remove(), 3800); }
+}
+function show(id) { document.querySelectorAll(".screen").forEach(s => s.classList.remove("on")); $(id).classList.add("on"); window.scrollTo(0, 0); }
+
+/* ====== data ====== */
+const SND = { a:"ah",b:"buh",c:"kuh",d:"duh",e:"eh",f:"fff",g:"guh",h:"huh",i:"ih",j:"juh",k:"kuh",l:"lll",m:"mmm",n:"nnn",o:"aw",p:"puh",q:"kwuh",r:"rrr",s:"sss",t:"tuh",u:"uh",v:"vvv",w:"wuh",x:"ks",y:"yuh",z:"zzz" };
+const EASYL = "a m s t p b c d f n o".split(" ");
+const ALLL = Object.keys(SND);
+const CVC = [["cat","🐱"],["dog","🐶"],["sun","☀️"],["hat","🎩"],["pig","🐷"],["bus","🚌"],["bed","🛏️"],["fox","🦊"],["hen","🐔"],["bug","🐛"],["map","🗺️"],["cup","🥤"],["net","🥅"],["van","🚐"],["web","🕸️"]];
+const BLEND = [["frog","🐸"],["star","⭐"],["crab","🦀"],["drum","🥁"],["snail","🐌"],["flag","🚩"],["tree","🌳"],["plane","✈️"],["swan","🦢"],["clap","👏"],["spoon","🥄"],["train","🚂"]];
+const SIGHT = "the and is you I see can we my like go look to a it said he she on in".split(" ");
+const CONF = { b:"d", d:"b", p:"q", q:"p", m:"n", n:"m", u:"n", h:"n", g:"q", i:"j", j:"i", f:"t", t:"f", v:"w", w:"v", s:"z", z:"s" };
+const PHR = {
+  Easy: ["a big dog","a red hat","the sun","my cat","a pig","a bus"],
+  Average: ["a little frog","the big bus","I see a cat","we can go","a red star","look at me"],
+  Difficult: ["the frog can jump","I like my red hat","we see a big star","look at the sun","my dog can run","she has a cap"]
+};
+const SENT = [
+  ["I see a ___.","cat",["dog","sun"]],["The ___ is hot.","sun",["pig","hat"]],["A ___ can hop.","frog",["bus","cup"]],
+  ["I like my red ___.","hat",["bed","fox"]],["We go on the ___.","bus",["cat","sun"]],["The hen is on the ___.","bed",["map","net"]],
+  ["The pig can ___.","run",["sit","hop"]],["I can ___ a book.","read",["eat","hug"]]
+];
+const SCRAMBLE = [["I","see","a","cat"],["we","can","go","now"],["the","dog","can","run"],["I","like","my","hat"],["the","sun","is","hot"],["look","at","the","star"]];
+
+/* ====== activities: each returns array of question objects ====== */
+const ACTS = [
+  { id: "sound", icon: "🔊", name: "Sound Safari", sub: "Decode letter sounds", make: mkSound },
+  { id: "abc", icon: "🔤", name: "Big & Small Bridge", sub: "Match A with a", make: mkCase },
+  { id: "word", icon: "📖", name: "Word Temple", sub: "Read & match words", make: mkWord },
+  { id: "phrase", icon: "🪜", name: "Phrase Path", sub: "Build short phrases", make: mkPhrase },
+  { id: "sent", icon: "🌉", name: "Sentence River", sub: "Finish & build sentences", make: mkSent }
+];
+const opts = (ans, pool, n) => shuffle([ans, ...pick(pool.filter(x => x !== ans), n - 1)]);
+
+function mkSound(L) {
+  if (L === "Easy") return pick(EASYL, 6).map(l => ({ type: "c", prompt: "Which letter says this sound?", big: "🔊", say: SND[l], hearSay: SND[l], options: opts(l, EASYL, 3), answer: l, fmt: x => x.toUpperCase() + x }));
+  const W = CVC.concat(BLEND), end = L === "Difficult";
+  return pick(W, 6).map(([w, e]) => { const l = end ? w.slice(-1) : w[0];
+    return { type: "c", prompt: end ? "Which letter does the word END with?" : "Which letter does the word START with?", big: e, say: w, hearSay: w,
+      options: opts(l, ALLL, 4), answer: l, fmt: x => x.toUpperCase() + x }; });
+}
+function mkCase(L) {
+  const pool = L === "Easy" ? EASYL : ALLL;
+  return pick(pool, 6).map(l => {
+    if (L === "Easy") return { type: "c", prompt: "Find the small letter for the BIG letter", big: l.toUpperCase(), say: "Capital " + l, hearSay: l, options: opts(l, pool, 3), answer: l };
+    if (L === "Average") return { type: "c", prompt: "Find the BIG letter for the small letter", big: l, say: l, hearSay: l, options: opts(l.toUpperCase(), pool.map(x => x.toUpperCase()), 3), answer: l.toUpperCase() };
+    const c = CONF[l] || pick(ALLL, 1)[0];
+    return { type: "c", prompt: "Find the BIG letter for the small letter", big: l, say: l, hearSay: l, options: shuffle([l.toUpperCase(), c.toUpperCase(), pick(ALLL.filter(x => x !== l && x !== c), 1)[0].toUpperCase()]), answer: l.toUpperCase() };
+  });
+}
+function mkWord(L) {
+  if (L === "Easy") return pick(CVC, 6).map(([w, e]) => ({ type: "c", prompt: "Which word matches the picture?", big: e, say: w, hearSay: w, options: opts(w, CVC.map(x => x[0]), 3), answer: w }));
+  if (L === "Average") return pick(BLEND.concat(CVC), 6).map(([w, e]) => ({ type: "c", prompt: "Which word matches the picture?", big: e, say: w, hearSay: w, options: opts(w, BLEND.concat(CVC).map(x => x[0]), 4), answer: w }));
+  return pick(SIGHT, 6).map(w => ({ type: "c", prompt: "Listen. Tap the word you hear!", big: "👂", say: w, hearSay: w, options: opts(w, SIGHT, 4), answer: w }));
+}
+function mkPhrase(L) {
+  const P = PHR[L];
+  return pick(P, 5).map(p => {
+    const words = p.split(" ");
+    if (L === "Easy") return { type: "c", prompt: "Tap the phrase you hear", big: "👂", say: p, hearSay: p, options: opts(p, P, 3), answer: p, txt: 1 };
+    return { type: "o", prompt: "Tap the words in order to build the phrase", big: "👂", say: p, hearSay: p, words, tiles: shuffle(words) };
+  });
+}
+function mkSent(L) {
+  if (L === "Difficult") return pick(SCRAMBLE, 5).map(w => ({ type: "o", prompt: "Tap the words to build the sentence", big: "👂", say: w.join(" ") + ".", hearSay: w.join(" "), words: w, tiles: shuffle(w) }));
+  const n = L === "Easy" ? 3 : 4;
+  return pick(SENT, 6).map(([t, a, d]) => ({ type: "c", prompt: "Which word finishes the sentence?", big: t.replace("___", "＿＿"), txt: 1, say: t.replace("___", a), hearSay: t.replace("___", "blank"), options: shuffle([a, ...d].slice(0, n)), answer: a, bigTxt: 1 }));
+}
+
+/* ====== flow ====== */
+function newName() { S.code = pick(ADJ, 1)[0] + " " + pick(ANI, 1)[0]; $("codeName").textContent = S.code; }
+function init() {
+  S.code = localStorage.getItem("lqCode") || ""; if (!S.code) newName(); else $("codeName").textContent = S.code;
+  localStorage.setItem("lqCode", S.code);
+}
+$("reroll").onclick = () => { sfx.click(); newName(); localStorage.setItem("lqCode", S.code); say(S.code); };
+$("m1").onclick = () => { sfx.jungle(); say("Hello " + S.code + "! Let's explore!"); };
+$("go").onclick = () => { sfx.jungle(); $("cn1").textContent = S.code; say("Welcome, " + S.code + "! Choose your trail."); show("s-level"); };
+document.querySelectorAll("[data-l]").forEach(b => b.onclick = () => { sfx.click(); S.level = b.dataset.l; buildMap(); show("s-act"); });
+document.querySelectorAll("[data-back]").forEach(b => b.onclick = () => { sfx.click(); show(b.dataset.back); });
+function buildMap() {
+  $("lvlTag").textContent = S.level; $("totalStars").textContent = S.stars; $("actGrid").innerHTML = "";
+  ACTS.forEach(a => { const b = document.createElement("button"); b.className = "btn act"; b.innerHTML = `<b>${a.icon}</b><span>${a.name}<br><small>${a.sub}</small></span>`;
+    b.onclick = () => start(a); $("actGrid").appendChild(b); });
+}
+function start(a) { sfx.click(); S.act = a; S.qs = a.make(S.level); S.i = 0; S.score = 0; $("actTag").textContent = a.icon + " " + a.name; show("s-play"); ask(); }
+$("quit").onclick = () => { speechSynthesis.cancel(); sfx.click(); show("s-act"); };
+$("hear").onclick = () => { const q = S.qs[S.i]; say(q.type === "c" && q.hearSay === q.say ? q.say : q.say, q.say.length < 4 ? .6 : .8); };
+$("again").onclick = () => start(S.act);
+$("toMap").onclick = () => { buildMap(); show("s-act"); };
+
+function ask() {
+  const q = S.qs[S.i]; S.locked = false;
+  $("prog").style.width = (S.i / S.qs.length * 100) + "%"; $("scoreTag").textContent = "⭐ " + S.score;
+  $("qPrompt").textContent = q.prompt; const big = $("qBig"); big.textContent = q.big; big.className = "big" + (q.txt ? " txt" : "");
+  const box = $("qOpts"); box.innerHTML = ""; const slots = $("qSlots");
+  if (q.type === "c") {
+    slots.style.display = "none";
+    q.options.forEach(o => { const b = document.createElement("button"); b.className = "btn opt"; b.textContent = q.fmt ? q.fmt(o) : o;
+      b.onclick = () => answer(b, o === q.answer); box.appendChild(b); });
+  } else {
+    slots.style.display = "flex"; slots.innerHTML = ""; q.got = [];
+    q.tiles.forEach(w => { const b = document.createElement("button"); b.className = "btn opt"; b.style.fontSize = "28px"; b.textContent = w;
+      b.onclick = () => { if (S.locked || b.disabled) return; sfx.click(); say(w, .7); b.disabled = true; b.style.opacity = .3; q.got.push(w);
+        const s = document.createElement("span"); s.className = "pill"; s.textContent = w; slots.appendChild(s);
+        if (q.got.length === q.words.length) { const ok = q.got.join(" ") === q.words.join(" "); answer(null, ok); } };
+      box.appendChild(b); });
+  }
+  setTimeout(() => say(q.hearSay === q.say ? q.say : q.say, q.say.length < 4 ? .6 : .8), 300);
+}
+function answer(btn, ok) {
+  if (S.locked) return; S.locked = true; const q = S.qs[S.i];
+  if (ok) { S.score++; sfx.good(); if (btn) btn.classList.add("good"); $("qBig").style.animation = "pop .5s"; setTimeout(() => say(["Great job!", "Awesome!", "You did it!", "Super!"][Math.random() * 4 | 0], 1), 400); }
+  else { sfx.bad(); if (btn) btn.classList.add("bad"); else $("qSlots").style.animation = "shake .4s"; setTimeout(() => say("Oops! Try the next one."), 300);
+    if (btn) [...$("qOpts").children].forEach(b => { if (b.textContent === (q.fmt ? q.fmt(q.answer) : q.answer)) b.classList.add("good"); }); }
+  $("scoreTag").textContent = "⭐ " + S.score;
+  setTimeout(() => { $("qBig").style.animation = ""; $("qSlots").style.animation = ""; S.i++; S.i < S.qs.length ? ask() : finish(); }, ok ? 1500 : 2300);
+}
+function finish() {
+  const n = S.qs.length, pct = S.score / n, st = pct >= .85 ? 3 : pct >= .6 ? 2 : pct >= .3 ? 1 : 0;
+  S.stars += st; localStorage.setItem("lqStars", S.stars); $("prog").style.width = "100%";
+  $("endStars").innerHTML = st ? Array.from({ length: st }, (_, k) => `<span style="animation-delay:${k * .3}s">⭐</span>`).join("") : "🌱";
+  const msg = st === 3 ? "Amazing, " + S.code + "!" : st ? "Great try, " + S.code + "!" : "Keep exploring, " + S.code + "!";
+  $("endMsg").textContent = msg; $("endScore").textContent = `Score: ${S.score} / ${n}`;
+  show("s-end"); sfx.win(); say(msg); if (st) confetti(); save(st, n);
+}
+async function save(stars, total) {
+  $("saveNote").textContent = "";
+  if (!API_URL || API_URL.startsWith("PASTE")) return;
+  try {
+    await fetch(API_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain" },
+      body: JSON.stringify({ code: S.code, activity: S.act.name, level: S.level, score: S.score, total, stars }) });
+    $("saveNote").textContent = "✅ Progress saved!";
+  } catch (e) { $("saveNote").textContent = "Could not save. Check the internet."; }
+}
+$("teacher").onclick = async () => {
+  sfx.click(); show("s-teacher"); const t = $("tTable");
+  if (!API_URL || API_URL.startsWith("PASTE")) { t.textContent = "Connect the Apps Script URL first."; return; }
+  try {
+    const r = await (await fetch(API_URL + "?action=list")).json();
+    t.innerHTML = "<table><tr><th>Date</th><th>Code name</th><th>Activity</th><th>Level</th><th>Score</th><th>⭐</th></tr>" +
+      r.rows.map(x => `<tr><td>${x[0]}</td><td>${x[1]}</td><td>${x[2]}</td><td>${x[3]}</td><td>${x[4]}/${x[5]}</td><td>${x[6]}</td></tr>`).join("") + "</table>";
+  } catch (e) { t.textContent = "Could not load results."; }
+};
+init();
+</script>
+</body>
+</html>
